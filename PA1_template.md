@@ -1,32 +1,10 @@
 
-
-```r
+---
 title: "Reproducible Research: Peer Assessment 1.  By Mark Smith."
-```
-
-```
-## Warning: NAs introduced by coercion
-```
-
-```
-## Error in title:"Reproducible Research: Peer Assessment 1.  By Mark Smith.": NA/NaN argument
-```
-
-```r
-output: html_document
-```
-
-```
-## Error in eval(expr, envir, enclos): object 'output' not found
-```
-
-```r
-keep_md: true
-```
-
-```
-## Error in eval(expr, envir, enclos): object 'keep_md' not found
-```
+output: 
+  html_document:
+    keep_md: true
+---
 
 # Introduction
 I have included most of the text from both the questions on the "Instructions" and "My Submission" page as they differ slightly.  The R code is embedded with all anaysis as required.  Please note that knitr is embedding images into the HTML so no image/figure folder is required.
@@ -93,7 +71,7 @@ print(stepsPerDay)
 hist(stepsPerDay, main = "Histogram of Steps per Day", xlab = "Steps")
 ```
 
-![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png)
+![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.png)
 
 * Mean and median number of steps taken each day
 
@@ -138,7 +116,7 @@ ggplot(intervalSummary, aes(interval, average)) +
         scale_x_continuous(name = "Interval") 
 ```
 
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png)
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png)
 
 * The 5-minute interval that, on average, contains the maximum number of steps
 * Using the intervalSummary data from the last step we can find the interval(s) which equal the maximum out of the set.
@@ -226,7 +204,7 @@ hist(ImputedStepsPerDay$stepsInDay,
      xlab = "Steps")
 ```
 
-![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png)
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png)
 
 ```r
 summaryImputed <- summarise(ImputedStepsPerDay, mean = mean(stepsInDay), median = median(stepsInDay))
@@ -305,7 +283,7 @@ ggplot(intervalTypeSummary, aes(interval, average)) +
         scale_x_continuous(name = "Interval")
 ```
 
-![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png)
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png)
 
 ## Analysis
 We can see there are some differences between the weekday and weekend activity:
@@ -313,5 +291,5 @@ We can see there are some differences between the weekday and weekend activity:
 1. Weekdays see higher activity between 0500-1000 and 1730-1900 than weekends, possibly related to travel to/from  work/study, and only moving short distances within these areas during the day.
 
 2. Weekends see higher activity between 1000-1730 which is different to weekdays, although there is still a split morning peak but no major evening peak.  Overall, there are sustained levels of activity from morning until mid-afternoon, suggesting more varied activity on weekends.  
-```
+
 
