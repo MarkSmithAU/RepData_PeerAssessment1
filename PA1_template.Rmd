@@ -4,13 +4,14 @@ output:
   html_document:
     keep_md: true
 ---
-
+# Introduction
+I have included most of the text from both the questions on the "Instructions" and "My SUbmission" page as they differ slightly.  The R code is embedded with all anaysis as required.
 
 # Loading and preprocessing the data
-## Load the data (i.e. read.csv())
-## Process/transform the data (if necessary) into a format suitable for your analysis
+* Load the data (i.e. read.csv())
+* Process/transform the data (if necessary) into a format suitable for your analysis
 
-Please ensure that "activity.csv" is available for loding int he working directory of the script.
+Please ensure that "activity.csv" is available for loading in the working directory of the script.
 ```{r simulation,echo=TRUE}
 library(data.table)
 library(dplyr)
@@ -19,12 +20,11 @@ library(ggplot2)
 
 activity <- tbl_df(fread("activity.csv")) %>% 
         mutate(date = ymd(date))
-
 ```
 
 # What is mean total number of steps taken per day?
-## Calculate the total number of steps taken per day
-## Histogram of the total number of steps taken each day
+* Calculate the total number of steps taken per day
+* Histogram of the total number of steps taken each day
 ```{r echo=TRUE}
 stepsPerDay <- unlist(activity %>% 
         group_by(date) %>% 
@@ -34,19 +34,21 @@ stepsPerDay <- unlist(activity %>%
 hist(stepsPerDay)
 ```
 
-## Mean and median number of steps taken each day
+* Mean and median number of steps taken each day
 ```{r echo=TRUE}
 stepSummary <- activity %>% 
         group_by(date) %>% 
         summarise(stepsInDay = sum(steps, na.rm = TRUE)) %>%
         mutate(mean = mean(stepsInDay), median = median(stepsInDay))
 
-summarise(stepSummary, mean = mean(stepsInDay), median = median(stepsInDay))
+summaryUnimputed <- summarise(stepSummary, mean = mean(stepsInDay), median = median(stepsInDay))
+print("Unimputed mean and median:")
+print(summaryUnimputed)
 ```
 
 # What is the average daily activity pattern?
-## Time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
-Note that I have used ggplot instead of the base plotting system, so there is no 'type = "l"'.
+* Time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+* Note that I have used ggplot instead of the base plotting system, so there is no 'type = "l"'.
 ```{r echo=TRUE}
 intervalSummary <- activity %>% 
         group_by(interval) %>% 
@@ -59,8 +61,8 @@ ggplot(intervalSummary, aes(interval, average)) +
         scale_x_continuous(name = "Interval") 
 ```
 
-## The 5-minute interval that, on average, contains the maximum number of steps
-Using the intervalSummary data from the last step we can find the interval(s) which equal the maximum out of the set.
+* The 5-minute interval that, on average, contains the maximum number of steps
+* Using the intervalSummary data from the last step we can find the interval(s) which equal the maximum out of the set.
 ```{r echo=TRUE}
 filter(intervalSummary, average == max(average))
 ```
@@ -69,22 +71,29 @@ filter(intervalSummary, average == max(average))
 # Imputing missing values
 Note that there are a number of days/intervals where there are missing values (coded as NA). The presence of missing days may introduce bias into some calculations or summaries of the data.
 
-# Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+* Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+
 The value 'TRUE' represents the number of NAs in the steps column/vector.  I have kept the TRUE and FALSE values for easy comparison with the next step.
 ```{r echo=TRUE}
 summary(is.na(activity$steps))
 ```
 
-# Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.  Create a new dataset that is equal to the original dataset but with the missing data filled in.
-## Code to describe and show a strategy for imputing missing data
-I took the following approach for this after considering what would give the best possible accuracy:
+* Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.  Create a new dataset that is equal to the original dataset but with the missing data filled in.
+* Code to describe and show a strategy for imputing missing data
+
+I took the following approach for this after considering what would give the reasonable accuracy:
+
 1. Find the per-interval mean with NA values removed to give an indicative value likely for that interval.
+
 2. Join the original data to the interval means
+
 3. Use the SQL-style coalesce function to take the first non-NA value so any interval that has a value will get its orignal value, but if it has no value it will inherit the value from the interval mean column.
+
 4. Save the tidy result into imputedActivity for later use.
+
 5. Confirm that there are no NAs left in the imputed data (only a 'FALSE' count should be returned.)
 
-It is worth noting that the imputation could be significantly enhanced by changing the granularity from average-day-interval to be more specific i.e. by weekends or by the actual day of the week.  This may be good or bad depending on the available data i.e. if most Tuesdays had data missing then imputing their data from a small sample of good Tuesdays could give skewed results.
+It is worth noting that the imputation could be significantly enhanced by changing the granularity from average-day-interval to be more specific i.e. by weekends or by the actual day of the week.  This may be good or bad depending on the available data i.e. if most Sundays had data missing then imputing their data from a small sample of good Tuesdays could give skewed results.
 
 ```{r echo=TRUE}
 intervalSummary <- activity %>% 
@@ -98,29 +107,37 @@ summary(is.na(imputedActivity$steps))
 ```
 
 ## Histogram of the total number of steps taken each day after missing values are imputed
-Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+* Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? 
+* What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
 ```{r echo=TRUE}
 ImputedStepsPerDay <- imputedActivity %>% 
         group_by(date) %>% 
         summarise(stepsInDay = sum(steps))
-hist(ImputedStepsPerDay$stepsInDay)
+hist(ImputedStepsPerDay$stepsInDay, 
+     main = "Histogram of Steps Per Day with Imputed values", 
+     xlab = "Steps")
+
+
+summaryImputed <- summarise(ImputedStepsPerDay, mean = mean(stepsInDay), median = median(stepsInDay))
 print("Unimputed mean and median:")
-summarise(stepSummary, mean = mean(stepsInDay), median = median(stepsInDay))
+print(summaryUnimputed)
 print("Imputed mean and median:")
-summarise(ImputedStepsPerDay, mean = mean(stepsInDay), median = median(stepsInDay))
+print(summaryImputed)
+
 ```
+## Analysis
+We can see from the results that the median increases slightly, but the mean increases significantly suggesting that the missing data significantly decreases the mean.
+
 
 #Are there differences in activity patterns between weekdays and weekends?
-##For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part.
-##Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
-##Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
+* For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part.
+* Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
+* Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
 
-I have used ggplot so there is no 'type = "l"'  We can see there are some differences between the weekday and weekend activity:
-1. Weekdays see higher activity between 0500-1000 and 1730-1900 than weekends, possibly related to travel to/from  work/study.
-2. Weekends see higher activity between 1000-1730 is different to weekdays, although there is still a split morning peak. 
+Please note I have used ggplot so there is no 'type = "l"'.
 
-## Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends
+* Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends
 ```{r echo=TRUE}
 intervalTypeSummary <- imputedActivity %>% 
         mutate(dayOfWeek = weekdays(date)) %>%
@@ -135,4 +152,8 @@ ggplot(intervalTypeSummary, aes(interval, average)) +
 
 ```
 
+## Analysis
+We can see there are some differences between the weekday and weekend activity:
+1. Weekdays see higher activity between 0500-1000 and 1730-1900 than weekends, possibly related to travel to/from  work/study.
+2. Weekends see higher activity between 1000-1730 is different to weekdays, although there is still a split morning peak. 
 
