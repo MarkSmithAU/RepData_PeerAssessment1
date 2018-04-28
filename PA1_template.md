@@ -1,20 +1,69 @@
 ---
 title: "Reproducible Research: Peer Assessment 1.  By Mark Smith."
-output: html_document
-keep_md: true
+output: 
+  html_document:
+    keep_md: true
 ---
 # Introduction
-I have included most of the text from both the questions on the "Instructions" and "My Submission" page as they differ slightly.  The R code is embedded with all anaysis as required.  Please note that knitr is embedding images into the HTML so no image/figure folder is required.
+I have included most of the text from both the questions on the "Instructions" and "My SUbmission" page as they differ slightly.  The R code is embedded with all anaysis as required.
 
 # Loading and preprocessing the data
 * Load the data (i.e. read.csv())
 * Process/transform the data (if necessary) into a format suitable for your analysis
 
 Please ensure that "activity.csv" is available for loading in the working directory of the script.
-```{r simulation,echo=TRUE}
+
+```r
 library(data.table)
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:data.table':
+## 
+##     between, first, last
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(lubridate)
+```
+
+```
+## 
+## Attaching package: 'lubridate'
+```
+
+```
+## The following objects are masked from 'package:data.table':
+## 
+##     hour, isoweek, mday, minute, month, quarter, second, wday,
+##     week, yday, year
+```
+
+```
+## The following object is masked from 'package:base':
+## 
+##     date
+```
+
+```r
 library(ggplot2)
 
 activity <- tbl_df(fread("activity.csv")) %>% 
@@ -24,18 +73,21 @@ activity <- tbl_df(fread("activity.csv")) %>%
 # What is mean total number of steps taken per day?
 * Calculate the total number of steps taken per day
 * Histogram of the total number of steps taken each day
-```{r echo=TRUE}
+
+```r
 stepsPerDay <- unlist(activity %>% 
         group_by(date) %>% 
         summarise(stepsInDay = sum(steps, na.rm = TRUE)) %>% 
         select(stepsInDay)
         )
-print(stepsPerDay)
-hist(stepsPerDay, main = "Histogram of Steps per Day", xlab = "Steps")
+hist(stepsPerDay)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
+
 * Mean and median number of steps taken each day
-```{r echo=TRUE}
+
+```r
 stepSummary <- activity %>% 
         group_by(date) %>% 
         summarise(stepsInDay = sum(steps, na.rm = TRUE)) %>%
@@ -43,16 +95,31 @@ stepSummary <- activity %>%
 
 summaryUnimputed <- summarise(stepSummary, mean = mean(stepsInDay), median = median(stepsInDay))
 print("Unimputed mean and median:")
+```
+
+```
+## [1] "Unimputed mean and median:"
+```
+
+```r
 print(summaryUnimputed)
+```
+
+```
+## # A tibble: 1 x 2
+##    mean median
+##   <dbl>  <int>
+## 1 9354.  10395
 ```
 
 # What is the average daily activity pattern?
 * Time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 * Note that I have used ggplot instead of the base plotting system, so there is no 'type = "l"'.
-```{r echo=TRUE}
+
+```r
 intervalSummary <- activity %>% 
         group_by(interval) %>% 
-        summarise(average = mean(steps, na.rm = TRUE))
+        summarise(average = as.integer(round(mean(steps, na.rm = TRUE),0)))
 
 ggplot(intervalSummary, aes(interval, average)) + 
         geom_line() +
@@ -61,10 +128,20 @@ ggplot(intervalSummary, aes(interval, average)) +
         scale_x_continuous(name = "Interval") 
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
 * The 5-minute interval that, on average, contains the maximum number of steps
 * Using the intervalSummary data from the last step we can find the interval(s) which equal the maximum out of the set.
-```{r echo=TRUE}
+
+```r
 filter(intervalSummary, average == max(average))
+```
+
+```
+## # A tibble: 1 x 2
+##   interval average
+##      <int>   <int>
+## 1      835     206
 ```
 
 
@@ -74,8 +151,14 @@ Note that there are a number of days/intervals where there are missing values (c
 * Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
 The value 'TRUE' represents the number of NAs in the steps column/vector.  I have kept the TRUE and FALSE values for easy comparison with the next step.
-```{r echo=TRUE}
+
+```r
 summary(is.na(activity$steps))
+```
+
+```
+##    Mode   FALSE    TRUE 
+## logical   15264    2304
 ```
 
 * Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.  Create a new dataset that is equal to the original dataset but with the missing data filled in.
@@ -93,43 +176,88 @@ I took the following approach for this after considering what would give the rea
 
 5. Confirm that there are no NAs left in the imputed data (only a 'FALSE' count should be returned.)
 
-It is worth noting that the imputation could be significantly enhanced by changing the granularity from average-day-interval to be more specific i.e. by weekends or by the actual day of the week.  This may be good or bad depending on the available data i.e. if most Sundays had data missing then imputing their data from a small sample of good Sundays could give skewed results.
+It is worth noting that the imputation could be significantly enhanced by changing the granularity from average-day-interval to be more specific i.e. by weekends or by the actual day of the week.  This may be good or bad depending on the available data i.e. if most Sundays had data missing then imputing their data from a small sample of good Tuesdays could give skewed results.
 
-```{r echo=TRUE}
+
+```r
 intervalSummary <- activity %>% 
         group_by(interval) %>% 
         summarise(average = as.integer(round(mean(steps, na.rm = TRUE),0)))
 intermediateActivity <- left_join(activity, intervalSummary)
+```
+
+```
+## Joining, by = "interval"
+```
+
+```r
 imputedActivity <- intermediateActivity %>% 
         mutate(steps = coalesce(steps, average)) %>%
         select(date,interval,steps)
 summary(is.na(imputedActivity$steps))
 ```
 
+```
+##    Mode   FALSE 
+## logical   17568
+```
+
 ## Histogram of the total number of steps taken each day after missing values are imputed
 * Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? 
 * What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r echo=TRUE}
+
+```r
 ImputedStepsPerDay <- imputedActivity %>% 
         group_by(date) %>% 
         summarise(stepsInDay = sum(steps))
 hist(ImputedStepsPerDay$stepsInDay, 
      main = "Histogram of Steps Per Day with Imputed values", 
      xlab = "Steps")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
+```r
 summaryImputed <- summarise(ImputedStepsPerDay, mean = mean(stepsInDay), median = median(stepsInDay))
 print("Unimputed mean and median:")
+```
+
+```
+## [1] "Unimputed mean and median:"
+```
+
+```r
 print(summaryUnimputed)
+```
+
+```
+## # A tibble: 1 x 2
+##    mean median
+##   <dbl>  <int>
+## 1 9354.  10395
+```
+
+```r
 print("Imputed mean and median:")
+```
+
+```
+## [1] "Imputed mean and median:"
+```
+
+```r
 print(summaryImputed)
-change <- round((summaryImputed-summaryUnimputed)/summaryUnimputed*100, 1)
-names(change) <- c("MeanPercentChange", "MedianPercentChange")
-print(change)
+```
+
+```
+## # A tibble: 1 x 2
+##     mean median
+##    <dbl>  <int>
+## 1 10766.  10762
 ```
 ## Analysis
-We can see from the results that the median increases slightly (3.5%), but the mean increases significantly (15.1%) suggesting that the missing data significantly decreases the mean in the unimputed set.
+We can see from the results that the median increases slightly, but the mean increases significantly suggesting that the missing data significantly decreases the mean.
 
 
 #Are there differences in activity patterns between weekdays and weekends?
@@ -140,26 +268,25 @@ We can see from the results that the median increases slightly (3.5%), but the m
 Please note I have used ggplot so there is no 'type = "l"'.
 
 * Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends
-```{r echo=TRUE}
+
+```r
 intervalTypeSummary <- imputedActivity %>% 
         mutate(dayOfWeek = weekdays(date)) %>%
-        mutate(dayType = case_when(dayOfWeek %in% c("Saturday", "Sunday") ~ "Weekend", TRUE ~ "Weekday")) %>%
-        group_by(interval, dayType) %>% 
-        summarise(average = as.integer(mean(steps, na.rm = TRUE)))
+        mutate(isWeekend = case_when(dayOfWeek %in% c("Saturday", "Sunday") ~ "Weekend", TRUE ~ "Weekday")) %>%
+        group_by(interval, isWeekend) %>% 
+        summarise(average = as.integer(round(mean(steps, na.rm = TRUE),0)))
 
 ggplot(intervalTypeSummary, aes(interval, average)) + 
-        facet_grid(dayType ~ .) +
+        facet_grid(isWeekend ~ .) +
         geom_line() +
-        ggtitle(label = expression("Steps for each Type of Day")) + 
-        scale_y_continuous(name = "Steps") +
-        scale_x_continuous(name = "Interval")
-
+        ggtitle(label = expression("Steps for each type of weekday day")) +         scale_y_continuous(name = "Steps")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 ## Analysis
 We can see there are some differences between the weekday and weekend activity:
 
-1. Weekdays see higher activity between 0500-1000 and 1730-1900 than weekends, possibly related to travel to/from  work/study, and only moving short distances within these areas during the day.
+1. Weekdays see higher activity between 0500-1000 and 1730-1900 than weekends, possibly related to travel to/from  work/study.
 
-2. Weekends see higher activity between 1000-1730 which is different to weekdays, although there is still a split morning peak but no major evening peak.  Overall, there are sustained levels of activity from morning until mid-afternoon, suggesting more varied activity on weekends.  
-
+2. Weekends see higher activity between 1000-1730 is different to weekdays, although there is still a split morning peak. 
