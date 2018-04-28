@@ -1,4 +1,3 @@
-
 ---
 title: "Reproducible Research: Peer Assessment 1.  By Mark Smith."
 output: 
@@ -7,7 +6,7 @@ output:
 ---
 
 # Introduction
-I have included most of the text from both the questions on the "Instructions" and "My Submission" page as they differ slightly.  The R code is embedded with all anaysis as required.  Please note that knitr is embedding images into the HTML so no image/figure folder is required.
+I have included most of the text from both the questions on the "Instructions" and "My Submission" page as they differ slightly.  The R code is embedded with all anaysis as required.  Please note that knitr is embedding images into the HTML, but the md file still uses the figure folder.
 
 # Loading and preprocessing the data
 * Load the data (i.e. read.csv())
