@@ -1,8 +1,10 @@
----
+
+```{r }
 title: "Reproducible Research: Peer Assessment 1.  By Mark Smith."
 output: html_document
 keep_md: true
----
+```
+
 # Introduction
 I have included most of the text from both the questions on the "Instructions" and "My Submission" page as they differ slightly.  The R code is embedded with all anaysis as required.  Please note that knitr is embedding images into the HTML so no image/figure folder is required.
 
@@ -162,4 +164,5 @@ We can see there are some differences between the weekday and weekend activity:
 1. Weekdays see higher activity between 0500-1000 and 1730-1900 than weekends, possibly related to travel to/from  work/study, and only moving short distances within these areas during the day.
 
 2. Weekends see higher activity between 1000-1730 which is different to weekdays, although there is still a split morning peak but no major evening peak.  Overall, there are sustained levels of activity from morning until mid-afternoon, suggesting more varied activity on weekends.  
+```
 
